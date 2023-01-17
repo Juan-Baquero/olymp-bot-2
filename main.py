@@ -108,12 +108,14 @@ def ejecutar():
                     # rates = metatrader.getRatesPos(mt5)
                     # acciones = obtenerAccion(indicator, model, rates)
 
-                    minuto = -1
+                    barra_actual = datos.obtenerDatos(mt5,
+                                                      symbol,  cantidad=1, posicion=0)
+                    minuto = barra_actual.iloc[0]['minute']
+
                     ahora = dt.now(tz=timezone)
 
                     # Se espera a que coincida el siguiente minuto
                     while not ahora.minute == minuto:
-
                         barra_actual = datos.obtenerDatos(mt5,
                                                           symbol,  cantidad=1, posicion=0)
                         minuto = barra_actual.iloc[0]['minute']
