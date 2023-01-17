@@ -45,12 +45,12 @@ def ejecutar():
     symbol = "EURUSD"
     indicator = "lazy"  # "ema"  # "stoch-qstick" "lazy"
     model = "DecisionTreeRegressor"
-    isMt5Started = False
-    successful = False
-    mt5 = None
+
     web_scraping.startBot()
     while True:
-
+        isMt5Started = False
+        successful = False
+        mt5 = None
         accion = None
         try:
             check_output("cd C:\Windows\System32", shell=True)
@@ -164,7 +164,6 @@ def ejecutar():
             # FINALIZAR METATRADER
             if(isMt5Started):
                 metatrader.end(mt5)
-                isMt5Started = False
 
         except Exception as e:
             if(isMt5Started):
