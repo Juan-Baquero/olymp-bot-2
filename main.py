@@ -1,3 +1,4 @@
+from subprocess import check_output
 from datetime import timezone
 import pandas as pd
 from shared.indicadores import lazyModel
@@ -52,6 +53,9 @@ def ejecutar():
 
         accion = None
         try:
+            check_output("cd C:\Windows\System32", shell=True)
+            check_output("w32tm /resync", shell=True)
+
             # INICIAR METATRADER
             while (not isMt5Started):
                 mt5 = metatrader.init(symbol)
