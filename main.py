@@ -63,6 +63,7 @@ def ejecutar():
                     system("cls")
 
                 ahora = dt.now(tz=timezone)
+                minuto = -1
                 while not (ahora.second == 30):
                     ahora = dt.now(tz=timezone)
 
@@ -93,32 +94,8 @@ def ejecutar():
                     pred_high = lazyModel.obtenerPrediccion(
                         model, datos_train, 'high', X_test)[0]
 
-                while not (ahora.second == 0):
-                    ahora = dt.now(tz=timezone)
-
-                if(ahora.second == 0 and not successful):
-
-                    global last_action_time
-                    try:
-                        last_operacion = mongo_db.getLast(indicator)[0]
-                        last_action_time = last_operacion['action_time']
-                    except:
-                        last_action_time = 0
-                    # Versiones no Lazy
-                    # rates = metatrader.getRatesPos(mt5)
-                    # acciones = obtenerAccion(indicator, model, rates)
-
                     barra_actual = datos.obtenerDatos(mt5,
                                                       symbol,  cantidad=1, posicion=0)
-                    minuto = barra_actual.iloc[0]['minute']
-
-                    ahora = dt.now(tz=timezone)
-
-                    # Se espera a que coincida el siguiente minuto
-                    while not ahora.minute == minuto:
-                        barra_actual = datos.obtenerDatos(mt5,
-                                                          symbol,  cantidad=1, posicion=0)
-                        minuto = barra_actual.iloc[0]['minute']
 
                     # Se obtienen valores para calcular accion
                     open = barra_actual['open'][len(barra_actual)-1]
@@ -132,8 +109,33 @@ def ejecutar():
 
                     action_time = barra_actual.iloc[0]['time']
                     utc_time = barra_actual.iloc[0]['date']
+                    minuto_next = barra_actual.iloc[0]['minute']+1
 
-                    print('accion', accion)
+                    print('accion', minuto_next, accion)
+
+                while not (ahora.second == 58):
+                    ahora = dt.now(tz=timezone)
+
+                if(not successful):
+
+                    global last_action_time
+                    try:
+                        last_operacion = mongo_db.getLast(indicator)[0]
+                        last_action_time = last_operacion['action_time']
+                    except:
+                        last_action_time = 0
+                    # Versiones no Lazy
+                    # rates = metatrader.getRatesPos(mt5)
+                    # acciones = obtenerAccion(indicator, model, rates)
+
+                    # Se espera a que coincida el siguiente minuto
+                    barra_actual = datos.obtenerDatos(mt5,
+                                                      symbol,  cantidad=1, posicion=0)
+                    minuto = barra_actual.iloc[0]['minute']
+                    while not minuto == minuto_next:
+                        barra_actual = datos.obtenerDatos(mt5,
+                                                          symbol,  cantidad=1, posicion=0)
+                        minuto = barra_actual.iloc[0]['minute']
 
                     if(accion == 'buy' and rate > 0):
                         web_scraping.clickUp()
@@ -141,7 +143,7 @@ def ejecutar():
                         web_scraping.clickDown()
                     else:
                         accion = None
-
+                    print('accion-suc', accion, successful)
                     amount = web_scraping.getAmount()
                     duration = web_scraping.getDuration()
                     utc_time_current = datetime.now(tz=timezone)
