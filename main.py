@@ -54,7 +54,6 @@ def ejecutar():
                 second = dt.now(tz=timezone).second
                 if(not lastSencond == second):
 
-                    print(second)
                     print('rate', rate)
                     print('balance', balance)
                     lastSencond = second
