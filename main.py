@@ -107,9 +107,9 @@ def ejecutar():
                     accion = estrategias.obtenerAccion(4, pred_close, pred_low, pred_high,
                                                        open, open_1, close_1, low_1, high_1)
 
-                    action_time = barra_actual.iloc[0]['time']
-                    utc_time = barra_actual.iloc[0]['date']
-                    minuto_next = barra_actual.iloc[0]['minute']+1
+                    action_time = X_test.iloc[0]['time']
+                    utc_time = pd.to_datetime(action_time, unit='s')
+                    minuto_next = int(X_test.iloc[0]['minute'])
 
                     print('accion', minuto_next, accion)
 

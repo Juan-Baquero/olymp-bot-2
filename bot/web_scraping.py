@@ -117,7 +117,9 @@ def getDuration():
 
 
 def getBalance():
-    return float(span_balance.text.replace('Đ', '').replace('.', '').replace(',', '').replace('DEMO ACCOUNT', '').replace('CUENTA DEMO', ''))
+    ini = span_balance.text.replace('Đ', '').replace(
+        'DEMO ACCOUNT', '').replace('CUENTA DEMO', '')
+    return float(ini.replace('.', '').replace(',', '.'))
 
 
 def setAmount(amount):
