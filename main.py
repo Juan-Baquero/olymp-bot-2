@@ -79,18 +79,17 @@ def ejecutar():
             if(dt.now(tz=timezone).hour == 0):
                 system("cls")
 
-            # ESPERA A QUE SEA EL SEGUNDO 59
+            # ESPERA A QUE SEA EL SEGUNDO 0
             ahora = dt.now(tz=timezone)
-            ms = float('0.'+str(ahora.timestamp()).split('.')[1])
+
             while not (ahora.second == 0):
-
                 ahora = dt.now(tz=timezone)
-                ms = float('0.'+str(ahora.timestamp()).split('.')[1])
-
+            # AJUSTE MILISEGUNDOS
+            ms = float('0.'+str(ahora.timestamp()).split('.')[1])
             while ms < 0.35:
                 ahora = dt.now(tz=timezone)
                 ms = float('0.'+str(ahora.timestamp()).split('.')[1])
-                print(ms)
+
             # SE CALCULA PREDICCIONES
             step = 1000  # Cantidad de datos
             posicion = 0  # Posicion actual
@@ -98,7 +97,7 @@ def ejecutar():
             # Se obtienen los ultimos datos
             datos_todos = datos.obtenerDatos(
                 mt5, symbol,  cantidad=step, posicion=posicion)
-
+            ini = dt.now(tz=timezone).timestamp()
             # Se obtiene obtiene predicción para el siguiente minuto
             # CLOSE
             datos_train, X_test = lazyModel.obtenerDatos(
@@ -116,18 +115,20 @@ def ejecutar():
             pred_high = lazyModel.obtenerPrediccion(
                 model, datos_train, 'high', X_test)[0]
 
-            barra_actual = datos.obtenerDatos(mt5,
-                                              symbol,  cantidad=1, posicion=0)
+            #barra_actual = datos.obtenerDatos(mt5,symbol,  cantidad=1, posicion=0)
 
             # Se obtienen valores para calcular accion
-            open = barra_actual['open'][len(barra_actual)-1]
+            #open =  barra_actual['open'][len(barra_actual)-1]
             open_1 = datos_todos['open'][len(datos_todos)-1]
             close_1 = datos_todos['close'][len(datos_todos)-1]
             high_1 = datos_todos['high'][len(datos_todos)-1]
             low_1 = datos_todos['low'][len(datos_todos)-1]
+            # OJO ESTA MAL EL OPEN POR CUESTION DE TIEMPOS
+            # BARRA ACTUAL ES IGUAL A LA ULTIMA
+            #print(barra_actual, datos_todos['low'][len(datos_todos)-1])
             # Se obtiene la accion
-            accion = estrategias.obtenerAccion(4, pred_close, pred_low, pred_high,
-                                               open, open_1, close_1, low_1, high_1)
+            accion = estrategias.obtenerAccion(5, pred_close, pred_low, pred_high,
+                                               0, open_1, close_1, low_1, high_1)
 
             action_time = X_test.iloc[0]['time']
             utc_time = pd.to_datetime(action_time, unit='s')
@@ -149,12 +150,20 @@ def ejecutar():
             # rates = metatrader.getRatesPos(mt5)
             # acciones = obtenerAccion(indicator, model, rates)
 
+            fin = dt.now(tz=timezone).timestamp()
+            print(fin-ini)
             # Se espera a que coincida el siguiente minuto
             minuto = dt.now(tz=timezone).minute
-            #minuto = obtenerMinuto(m)
             while not minuto == minuto_next:
                 minuto = dt.now(tz=timezone).minute
-                #minuto = obtenerMinuto(minuto)
+            # AJUSTE MILISEGUNDOS
+            ms = float('0.'+str(ahora.timestamp()).split('.')[1])
+            ini = dt.now(tz=timezone).timestamp()
+            while ms < 0.85:
+                ahora = dt.now(tz=timezone)
+                ms = float('0.'+str(ahora.timestamp()).split('.')[1])
+            fin = dt.now(tz=timezone).timestamp()
+            print(fin-ini)
             # SE EJECUTA LA ACCION
             if(accion == 'buy' and rate > 0):
                 web_scraping.clickUp()
@@ -187,7 +196,7 @@ def ejecutar():
             mongo_db.insertOperation(
                 {"indicator": indicator+'_'+model,
                  "operation": accion,
-                 'open': int(barra_actual['open']),
+                 'close_1': int(close_1),
                  'pred_close': pred_close,
                  "action_time": int(action_time),
                  "utc_time": utc_time,
