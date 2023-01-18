@@ -134,7 +134,7 @@ def ejecutar():
             minuto_next = int(X_test.iloc[0]['minute'])
 
             print('accion', minuto_next, accion)
-            accion = 'sell'
+
             # SE OBTIENE LA ULTIMA ACCION
             """ while not (ahora.second == 58):
                 ahora = dt.now(tz=timezone)
