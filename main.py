@@ -79,11 +79,18 @@ def ejecutar():
             if(dt.now(tz=timezone).hour == 0):
                 system("cls")
 
-            # ESPERA A QUE SEA EL SEGUNDO 30
+            # ESPERA A QUE SEA EL SEGUNDO 59
             ahora = dt.now(tz=timezone)
-            while not (ahora.second == 30):
-                ahora = dt.now(tz=timezone)
+            ms = float('0.'+str(ahora.timestamp()).split('.')[1])
+            while not (ahora.second == 0):
 
+                ahora = dt.now(tz=timezone)
+                ms = float('0.'+str(ahora.timestamp()).split('.')[1])
+
+            while ms < 0.35:
+                ahora = dt.now(tz=timezone)
+                ms = float('0.'+str(ahora.timestamp()).split('.')[1])
+                print(ms)
             # SE CALCULA PREDICCIONES
             step = 1000  # Cantidad de datos
             posicion = 0  # Posicion actual
@@ -127,9 +134,9 @@ def ejecutar():
             minuto_next = int(X_test.iloc[0]['minute'])
 
             print('accion', minuto_next, accion)
-
+            accion = 'sell'
             # SE OBTIENE LA ULTIMA ACCION
-            while not (ahora.second == 58):
+            """ while not (ahora.second == 58):
                 ahora = dt.now(tz=timezone)
 
             global last_action_time
@@ -137,7 +144,7 @@ def ejecutar():
                 last_operacion = mongo_db.getLast(indicator)[0]
                 last_action_time = last_operacion['action_time']
             except:
-                last_action_time = 0
+                last_action_time = 0 """
             # Versiones no Lazy
             # rates = metatrader.getRatesPos(mt5)
             # acciones = obtenerAccion(indicator, model, rates)
