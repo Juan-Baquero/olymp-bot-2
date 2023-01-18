@@ -53,6 +53,10 @@ def ejecutar():
         mt5 = None
         accion = None
         try:
+            # LIMPIA LA CONSOLA CADA HORA
+            if(dt.now(tz=timezone).minute == 0):
+                system("cls")
+
             check_output("cd C:\Windows\System32", shell=True)
             check_output("w32tm /resync", shell=True)
 
@@ -75,9 +79,6 @@ def ejecutar():
                 mongo_db.insertRate({"rate": rate,
                                     "utc_time": datetime.now(tz=timezone),
                                      "time": datetime.now()})
-            # LIMPIA LA CONSOLA CADA DIA
-            if(dt.now(tz=timezone).hour == 0):
-                system("cls")
 
             # ESPERA A QUE SEA EL SEGUNDO 0
             ahora = dt.now(tz=timezone)
@@ -86,18 +87,18 @@ def ejecutar():
                 ahora = dt.now(tz=timezone)
             # AJUSTE MILISEGUNDOS
             ms = float('0.'+str(ahora.timestamp()).split('.')[1])
-            while ms < 0.35:
+            while ms < 0.6:
                 ahora = dt.now(tz=timezone)
                 ms = float('0.'+str(ahora.timestamp()).split('.')[1])
 
             # SE CALCULA PREDICCIONES
             step = 1000  # Cantidad de datos
             posicion = 0  # Posicion actual
-
+            ini = dt.now(tz=timezone).timestamp()
             # Se obtienen los ultimos datos
             datos_todos = datos.obtenerDatos(
                 mt5, symbol,  cantidad=step, posicion=posicion)
-            ini = dt.now(tz=timezone).timestamp()
+
             # Se obtiene obtiene predicción para el siguiente minuto
             # CLOSE
             datos_train, X_test = lazyModel.obtenerDatos(
@@ -153,9 +154,9 @@ def ejecutar():
             fin = dt.now(tz=timezone).timestamp()
             print(fin-ini)
             # Se espera a que coincida el siguiente minuto
-            minuto = dt.now(tz=timezone).minute
+            """ minuto = dt.now(tz=timezone).minute
             while not minuto == minuto_next:
-                minuto = dt.now(tz=timezone).minute
+                minuto = dt.now(tz=timezone).minute """
             # AJUSTE MILISEGUNDOS
             ms = float('0.'+str(ahora.timestamp()).split('.')[1])
             ini = dt.now(tz=timezone).timestamp()
