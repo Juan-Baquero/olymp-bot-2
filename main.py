@@ -45,12 +45,21 @@ def ejecutar():
     symbol = "EURUSD"
     indicator = "lazy"  # "ema"  # "stoch-qstick" "lazy"
     model = "DecisionTreeRegressor"
+    isMt5Started = False
+    mt5 = None
+    # INICIAR METATRADER
+    while (not isMt5Started):
+        mt5 = metatrader.init(symbol)
+        if(mt5 == None):
+            isMt5Started = False
+        else:
+            isMt5Started = True
 
     web_scraping.startBot()
     while True:
-        isMt5Started = False
+
         successful = False
-        mt5 = None
+
         accion = None
         try:
             # LIMPIA LA CONSOLA CADA HORA
@@ -59,14 +68,6 @@ def ejecutar():
 
             check_output("cd C:\Windows\System32", shell=True)
             check_output("w32tm /resync", shell=True)
-
-            # INICIAR METATRADER
-            while (not isMt5Started):
-                mt5 = metatrader.init(symbol)
-                if(mt5 == None):
-                    isMt5Started = False
-                else:
-                    isMt5Started = True
 
             # OBTENER DATOS WEB
             rate = web_scraping.getRate()
@@ -86,15 +87,15 @@ def ejecutar():
             while not (ahora.second == 0):
                 ahora = dt.now(tz=timezone)
             # AJUSTE MILISEGUNDOS
-            ms = float('0.'+str(ahora.timestamp()).split('.')[1])
-            while ms < 0.6:
+            """ ms = float('0.'+str(ahora.timestamp()).split('.')[1])
+            while ms < 0.0:
                 ahora = dt.now(tz=timezone)
-                ms = float('0.'+str(ahora.timestamp()).split('.')[1])
+                ms = float('0.'+str(ahora.timestamp()).split('.')[1]) """
 
             # SE CALCULA PREDICCIONES
             step = 1000  # Cantidad de datos
             posicion = 0  # Posicion actual
-            ini = dt.now(tz=timezone).timestamp()
+            """ ini = dt.now(tz=timezone).timestamp() """
             # Se obtienen los ultimos datos
             datos_todos = datos.obtenerDatos(
                 mt5, symbol,  cantidad=step, posicion=posicion)
@@ -151,20 +152,20 @@ def ejecutar():
             # rates = metatrader.getRatesPos(mt5)
             # acciones = obtenerAccion(indicator, model, rates)
 
-            fin = dt.now(tz=timezone).timestamp()
-            print(fin-ini)
+            """ fin = dt.now(tz=timezone).timestamp()
+            print(fin-ini) """
             # Se espera a que coincida el siguiente minuto
             """ minuto = dt.now(tz=timezone).minute
             while not minuto == minuto_next:
                 minuto = dt.now(tz=timezone).minute """
             # AJUSTE MILISEGUNDOS
             ms = float('0.'+str(ahora.timestamp()).split('.')[1])
-            ini = dt.now(tz=timezone).timestamp()
-            while ms < 0.85:
+            # ini = dt.now(tz=timezone).timestamp()
+            while ms < 0.1:
                 ahora = dt.now(tz=timezone)
                 ms = float('0.'+str(ahora.timestamp()).split('.')[1])
-            fin = dt.now(tz=timezone).timestamp()
-            print(fin-ini)
+            # fin = dt.now(tz=timezone).timestamp()
+            # print(fin-ini)
             # SE EJECUTA LA ACCION
             if(accion == 'buy' and rate > 0):
                 web_scraping.clickUp()
@@ -178,9 +179,6 @@ def ejecutar():
             utc_time_current = datetime.now(tz=timezone)
             successful = True
             print('Fin minuto')
-            # FINALIZAR METATRADER
-            if(isMt5Started):
-                metatrader.end(mt5)
 
         except Exception as e:
             if(isMt5Started):
@@ -208,6 +206,10 @@ def ejecutar():
                  "duration": duration,
                  "balance": balance})
         # sleep(2)
+
+    # FINALIZAR METATRADER
+    if(isMt5Started):
+        metatrader.end(mt5)
 
 
 ejecutar()
